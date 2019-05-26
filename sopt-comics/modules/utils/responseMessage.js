@@ -2,10 +2,10 @@ module.exports = {
     NULL_VALUE: "필요한 값이 없습니다.",
     OUT_OF_VALUE: "파라미터 값이 잘못 되었습니다.",
 
-    CREATED_USER: "회원 가입 성공",
+    CREATED_USER: "회원가입 성공",
         FAIL_CREATED_USER: "회원 가입 실패",
-    READ_USR: "로그인 성공",
-        FAIL_READ_USR: "로그인 실패",
+    READ_USER: "로그인 성공",
+        FAIL_READ_USER: "로그인 실패",
     UPDATED_USER: "회원 정보 수정 성공",
         FAIL_UPDATED_USER: "회원 정보 수정 실패",
     REMOVED_USER: "회원 탈퇴 성공",

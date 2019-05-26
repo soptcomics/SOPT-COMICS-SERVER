@@ -5,7 +5,7 @@
 SOPT 웹툰을 제작한다.
 
 ### role
-Client : 신승민, 김정음
+Client : 신승민, 김정음, 양승희
 Server : 윤희성, 석영현
 
 ### frame work
