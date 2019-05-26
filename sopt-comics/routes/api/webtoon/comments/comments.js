@@ -1,7 +1,6 @@
 var express = require('express')
 var router = express.Router({mergeParams: true})
 
-
 /*
 댓글 전체 읽기
 METHOD      : GET
