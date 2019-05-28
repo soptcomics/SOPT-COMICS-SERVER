@@ -8,7 +8,32 @@ const TABLE_COMMENT = 'comment'
 const TABLE_LIKED = 'liked'
 
 const dbManager = {
-    
+    insertComics: async (jsonData) => {
+        const result = await db_insert(TABLE_COMICS, jsonData)
+        return result
+    },
+    selectComics: async (whereJson) => {
+        const result = await db_select(TABLE_COMICS, whereJson)
+        if(result.length == 0) return false
+        return result[0]
+    },
+    selectComicsAll: async (whereJson, orderBy) => {
+        const result = await db_select(TABLE_COMICS, whereJson, orderBy)
+        return result
+    },
+    insertEpisode: async (jsonData) => {
+        const result = await db_insert(TABLE_EPISODE, jsonData)
+        return result
+    },
+    selectEpisode: async (whereJson, orderBy) => {
+        const result = await db_select(TABLE_EPISODE, whereJson, orderBy)
+        if(result.length == 0) return false
+        return result[0]
+    },
+    selectEpisodeAll: async (whereJson, orderBy) => {
+        const result = await db_select(TABLE_EPISODE, whereJson, orderBy)
+        return result
+    }
 }
 
 function makeOrderByQuery(orderBy) {
@@ -62,6 +87,7 @@ async function db_select(table, whereJson, orderBy) {
     let whereStr = makeWhereQuery(whereJson)
     let orderByStr = makeOrderByQuery(orderBy)
     const query = `SELECT * FROM ${table} ${whereStr} ${orderByStr}`
+    console.log(query)
     const result = await db.queryParam_None(query)
     if (result == null) return false
     return result
@@ -76,7 +102,7 @@ async function db_insert(table, jsonData) {
     const query = `INSERT INTO ${table}(${fields}) values(${questions})`
     const result = await db.queryParam_Parse(query, values)
     if (result == null) return false
-    return true
+    return result
 }
 
 async function db_delete(table, whereJson) {
@@ -93,7 +119,7 @@ async function db_update(table, setJson, whereJson) {
     const query = `UPDATE ${table} SET ${setConditions} ${whereStr}`
     const result = await db.queryParam_None(query)
     if (result == null) return false
-    return false
+    return result
 }
 
 module.exports = dbManager
