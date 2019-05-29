@@ -54,8 +54,8 @@ module.exports = {
 
 
         
-    READ_COMICS: "메인 배너 조희 성공",
-        FAIL_READ_COMICS: "메인 배너 조회 실패",
+    READ_BANNER: "메인 배너 조희 성공",
+        FAIL_READ_BANNER: "메인 배너 조회 실패",
 
     NO_EPISODE: "존재하지 않는 댓글 입니다.",
 

@@ -11,7 +11,7 @@ const FLAG_LIKE = 0
 const FLAG_RECENT = 1
 const FLAG_FINISHED = 2
 
-const convertComicsJson = (json) => {
+const convertComicsJson = (json) => {   
     let dateTime = json.writetime
     json.writetime = dateTime.replace(/-/g,".")
 }
@@ -64,7 +64,7 @@ router.get('/sort/:flag', async (req, res) => {
 만화 상세 보기
 METHOD      : GET
 URL         : /webtoon/comics/:comicsIdx
-PARAMETER   : comicsIdx = comics's index
+PARAMETER   : comicsIdx = comics index
 */
 router.get('/:comicsIdx', async (req, res) => {
     const inputComicsIdx = req.params.comicsIdx
@@ -72,12 +72,18 @@ router.get('/:comicsIdx', async (req, res) => {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
         return
     }
+    const resultCheckComicsIdx = await dbManager.selectComics({comicsIdx: inputComicsIdx})
+    if(!resultCheckComicsIdx){
+        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.NO_COMICS))
+        return
+    }
+
     const resultEpisodeArray = await dbManager.selectEpisodeAll({
         comicsIdx: inputComicsIdx
     }, {
         episodeIdx: "DESC"
     })
-    if (resultEpisodeArray == false) {
+    if (resultEpisodeArray === false) {
         res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_COMICS))
         return
     }
