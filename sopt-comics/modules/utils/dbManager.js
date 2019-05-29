@@ -8,6 +8,34 @@ const TABLE_COMMENT = 'comment'
 const TABLE_LIKED = 'liked'
 
 const dbManager = {
+    insertUser: async (userJson) => {
+        const inputId = userJson.id
+        const inputName = userJson.name
+        const inputPwd = userJson.password
+        const inputSalt = userJson.salt
+        if (inputId == undefined ||
+            inputName == undefined ||
+            inputPwd == undefined ||
+            inputSalt == undefined) {
+            console.log(MSG.OUT_OF_VALUE)
+            return false
+        }
+        const result = await db_insert(TABLE_USER, userJson)
+        if (!result) return false
+        return true
+    },
+    selectUser: async (inputId) => {
+        if (inputId == undefined) {
+            console.log(MSG.OUT_OF_VALUE)
+            return false
+        }
+        const result = await db_select(TABLE_USER, {
+            id: inputId
+        })
+        if (result.length == 0) return null
+        if (result == null) return false
+        return result[0]
+    },
     insertComics: async (jsonData) => {
         const result = await db_insert(TABLE_COMICS, jsonData)
         return result
