@@ -72,7 +72,11 @@ PARAMETER   : comicsIdx = comics index
 */
 router.get('/:comicsIdx', async (req, res) => {
     const inputComicsIdx = req.params.comicsIdx
-    if (inputComicsIdx == undefined) {
+    // TODO UserIdx를 어떻게 가져올것인가. JWT?
+    const inputUserIdx = 3
+
+    if (inputComicsIdx == undefined ||
+        inputUserIdx == undefined) {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
         return
     }
@@ -95,9 +99,12 @@ router.get('/:comicsIdx', async (req, res) => {
         const episodeData = resultEpisodeArray[i]
         convertEpisodeJson(episodeData)
     }
-
-    const resultLiked = false
-    // TODO 좋아요 기능 구현하기
+    const jsonData = {
+        comicsIdx: inputComicsIdx,
+        userIdx: inputUserIdx
+    }
+    const validCheckLikes = await dbManager.selectLikes(jsonData)
+    const resultLiked = validCheckLikes != false
     const responseJson = {
         liked: resultLiked,
         episode_list: resultEpisodeArray

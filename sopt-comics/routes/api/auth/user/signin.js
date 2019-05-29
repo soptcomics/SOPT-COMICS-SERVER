@@ -33,8 +33,6 @@ router.post('/', async (req, res) => {
         return
     }
     const hashedPwd = await encryptionManager.encryption(inputPwd, resultJson.salt)
-    console.log(hashedPwd)
-    console.log(resultJson.password)
     if (resultJson.password != hashedPwd) {
         res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.MISS_MATCH_PW))
         return
