@@ -13,9 +13,19 @@ METHOD      : GET
 URL         : /webtoon/comics/banner
 */
 router.get('/', async (req, res) => {
-    const responseJson = ["https://ssl.pstatic.net/tveta/libs/1242/1242177/d668870c8d95508ddbe8_20190527134144766.jpg",
-        "https://naverwebtoon-phinf.pstatic.net/20190318_46/1552904291818PgwKT_JPEG/upload_6930048587152288439.JPEG?type=p100",
-        "https://ssl.pstatic.net/static/comic/images/bnr_partnership.jpg"]
+    const responseJson = [{
+        image_url: "https://novel-phinf.pstatic.net/20190204_63/novel_1549247832193trLMN_JPEG/EC9BB9EC868CEC84A4_PC_697X320.jpg?type=q90",
+        href: "https://novel.naver.com/webnovel/list.nhn?novelId=734365"
+    },
+    {
+        image_url: "https://novel-phinf.pstatic.net/20190501_253/novel_1556639778714jSLS6_PNG/pc_home_697x320.png?type=q90",
+        href: "https://comic.naver.com/contest/greatest/webnovel.nhn"
+    },
+    {
+        image_url: "https://novel-phinf.pstatic.net/20181003_85/novel_1538495904509CxNwO_JPEG/EC9BB9EC868CEC84A4_PC_697X320.jpg?type=q90",
+        href: "https://novel.naver.com/webnovel/list.nhn?novelId=759176"
+    }]
+    
     res.status(200).send(UTILS.successTrue(CODE.OK, MSG.READ_BANNER, responseJson))
 })
 
