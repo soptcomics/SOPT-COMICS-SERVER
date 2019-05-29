@@ -48,6 +48,10 @@ router.get('/sort/:flag', async (req, res) => {
             return
     }
     const result = await dbManager.selectComicsAll(whereJson, orderBy)
+    if(result === null){
+        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.NO_COMICS))
+        return
+    }
     if(result === false){
         res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_COMICS_ALL))
         return

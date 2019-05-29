@@ -14,7 +14,7 @@ const dbManager = {
     },
     selectComics: async (whereJson) => {
         const result = await db_select(TABLE_COMICS, whereJson)
-        if(result.length == 0) return false
+        if(result.length == 0) return null
         return result[0]
     },
     selectComicsAll: async (whereJson, orderBy) => {
@@ -27,7 +27,7 @@ const dbManager = {
     },
     selectEpisode: async (whereJson, orderBy) => {
         const result = await db_select(TABLE_EPISODE, whereJson, orderBy)
-        if(result.length == 0) return false
+        if(result.length == 0) return null
         return result[0]
     },
     selectEpisodeAll: async (whereJson, orderBy) => {
