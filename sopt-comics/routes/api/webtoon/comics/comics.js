@@ -52,7 +52,6 @@ router.get('/sort/:flag', async (req, res) => {
         res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_COMICS_ALL))
         return
     }
-    JSON.string
     for(const i in result){
         const comicsData = result[i]
         convertComicsJson(comicsData)
@@ -65,7 +64,7 @@ router.get('/sort/:flag', async (req, res) => {
 만화 상세 보기
 METHOD      : GET
 URL         : /webtoon/comics/:comicsIdx
-PARAMETER   : comicsIdx = comics's index
+PARAMETER   : comicsIdx = comics index
 */
 router.get('/:comicsIdx', async (req, res) => {
     const inputComicsIdx = req.params.comicsIdx
