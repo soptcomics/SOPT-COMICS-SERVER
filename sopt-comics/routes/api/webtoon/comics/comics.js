@@ -56,14 +56,10 @@ router.get('/sort/:flag', async (req, res) => {
         const comicsData = result[i]
         convertComicsJson(comicsData)
     }
-    const responseJson = {
-        banner_list: ["https://ssl.pstatic.net/tveta/libs/1242/1242177/d668870c8d95508ddbe8_20190527134144766.jpg",
-        "https://naverwebtoon-phinf.pstatic.net/20190318_46/1552904291818PgwKT_JPEG/upload_6930048587152288439.JPEG?type=p100",
-        "https://ssl.pstatic.net/static/comic/images/bnr_partnership.jpg"],
-        comics_list: result
-    }
+    const responseJson = result
     res.status(200).send(UTILS.successTrue(CODE.OK, MSG.READ_COMICS_ALL, responseJson))
 })
+
 /*
 만화 상세 보기
 METHOD      : GET
