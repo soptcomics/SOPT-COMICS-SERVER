@@ -59,6 +59,15 @@ module.exports = {
 
     NO_COMMENT: "존재하지 않는 댓글 입니다.",
 
+
+    LIKE_COMICS: "좋아요 성공",
+        ALREADY_LIKE_COMICS: "이미 좋아요 상태 입니다.",
+        FAIL_LIKE_COMICS: "좋아요 실패",
+    UNLIKE_COMICS: "좋아요 취소",
+        ALREADY_UNLIKE_COMICS: "이미 좋아요 취소 상태 입니다.",
+        FAIL_UNLIKE_COMICS: "좋아요 취소 실패",
+
+
     FAIL_ENCRYPTION: "암호화에 실패했습니다.",
     FAIL_DB_READ: "DB 읽기 실패",
     FAIL_DB_WRITE: "DB 쓰기 실패",

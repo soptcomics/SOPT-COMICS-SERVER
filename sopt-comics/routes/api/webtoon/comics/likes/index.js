@@ -1,7 +1,6 @@
 var express = require('express')
 var router = express.Router()
 
-router.use('/likes', require('./likes'))
-router.use('/', require('./comics'))
+router.use('/', require('./likes'))
 
 module.exports = router
