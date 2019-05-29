@@ -33,6 +33,10 @@ router.get('/:episodeIdx', async (req, res) => {
         return
     }
     const result = await dbManager.selectEpisode({episodeIdx: inputEpisodeIdx})
+    if(result == null) {
+        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.NO_EPISODE))
+        return
+    }
     if(result == false) {
         res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_EPISODE))
         return
