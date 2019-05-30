@@ -27,12 +27,12 @@ router.post('/', async (req, res) => {
         res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
         return
     }
-    const validCheck = await dbManager.selectUser(inputId)
+    const validCheck = await dbManager.selectUser({id: inputId})
     if (validCheck === false) {
         res.status(200).send(Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_CREATED_USER))
         return
     }
-    if (validCheck !== null) {
+    if (validCheck != null) {
         res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.ALREADY_USER))
         return
     }
