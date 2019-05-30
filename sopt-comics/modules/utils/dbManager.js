@@ -8,33 +8,28 @@ const TABLE_COMMENT = 'comment'
 const TABLE_LIKED = 'liked'
 
 const dbManager = {
-    insertUser: async (userJson) => {
-        const inputId = userJson.id
-        const inputName = userJson.name
-        const inputPwd = userJson.password
-        const inputSalt = userJson.salt
-        if (inputId == undefined ||
-            inputName == undefined ||
-            inputPwd == undefined ||
-            inputSalt == undefined) {
-            console.log(MSG.OUT_OF_VALUE)
-            return false
-        }
-        const result = await db_insert(TABLE_USER, userJson)
-        if (!result) return false
-        return true
+    insertUser: async (jsonData) => {
+        const result = await db_insert(TABLE_USER, jsonData)
+        return result
     },
-    selectUser: async (inputId) => {
-        if (inputId == undefined) {
-            console.log(MSG.OUT_OF_VALUE)
-            return false
-        }
-        const result = await db_select(TABLE_USER, {
-            id: inputId
-        })
+    selectUser: async (whereJson) => {
+        const result = await db_select(TABLE_USER, whereJson)
+        if (result.length == undefined) return false
         if (result.length == 0) return null
         if (result == null) return false
         return result[0]
+    },
+    selectLikes: async (jsonData) => {
+        const result = await db_select(TABLE_LIKED, jsonData)
+        return result
+    },
+    insertLikes: async (jsonData) => {
+        const result = await db_insert(TABLE_LIKED, jsonData)
+        return result
+    },
+    deleteLikes: async (jsonData) => {
+        const result = await db_delete(TABLE_LIKED, jsonData)
+        return result
     },
     insertComics: async (jsonData) => {
         const result = await db_insert(TABLE_COMICS, jsonData)
@@ -42,7 +37,8 @@ const dbManager = {
     },
     selectComics: async (whereJson) => {
         const result = await db_select(TABLE_COMICS, whereJson)
-        if(result.length == 0) return null
+        if (result.length == undefined) return false
+        if (result.length == 0) return null
         return result[0]
     },
     selectComicsAll: async (whereJson, orderBy) => {
@@ -55,7 +51,7 @@ const dbManager = {
     },
     selectEpisode: async (whereJson, orderBy) => {
         const result = await db_select(TABLE_EPISODE, whereJson, orderBy)
-        if(result.length == 0) return null
+        if (result.length == 0) return null
         return result[0]
     },
     selectEpisodeAll: async (whereJson, orderBy) => {
@@ -74,9 +70,13 @@ function makeOrderByQuery(orderBy) {
 }
 
 function makeWhereQuery(whereJson) {
-    if(whereJson == undefined) return ""
-    let conditions = makeConditions(whereJson)
-    whereStr = `WHERE ${conditions}`
+    if (whereJson == undefined) return ""
+    let conditions = ""
+    for (let key in whereJson) {
+        const condition = `${key} = '${whereJson[key]}'`
+        conditions = `${conditions} AND ${condition}`
+    }
+    whereStr = `WHERE ${conditions.substring(5)}`
     return whereStr
 }
 
@@ -97,7 +97,7 @@ function makeFields(fieldArr) {
     return fields.substring(1)
 }
 
-function makeFieldsValueQuery(jsonData){
+function makeFieldsValueQuery(jsonData) {
     const values = []
     let fields = ""
     let questions = ""
@@ -108,11 +108,15 @@ function makeFieldsValueQuery(jsonData){
         values.push(value)
         questions = questions + ",?"
     }
-    return {fields: fields.substring(1), questions: questions.substring(1), values: values}
+    return {
+        fields: fields.substring(1),
+        questions: questions.substring(1),
+        values: values
+    }
 }
 
 async function db_select(table, whereJson, orderBy) {
-    let whereStr = makeWhereQuery(whereJson)
+    let whereStr = makeWhereQuery(whereJson, ' AND ')
     let orderByStr = makeOrderByQuery(orderBy)
     const query = `SELECT * FROM ${table} ${whereStr} ${orderByStr}`
     console.log(query)
@@ -135,7 +139,7 @@ async function db_insert(table, jsonData) {
 
 async function db_delete(table, whereJson) {
     let whereStr = makeWhereQuery(whereJson)
-    const query = `DELETE FROM ${table} ${whereStr}}`
+    const query = `DELETE FROM ${table} ${whereStr}`
     const result = await db.queryParam_None(query)
     if (result == null) return false
     return result
