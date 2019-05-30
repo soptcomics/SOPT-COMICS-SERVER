@@ -23,13 +23,13 @@ router.post('/', async (req, res) => {
         res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
         return
     }
-    const resultJson = await dbManager.selectUser(inputId)
-    if (resultJson === false) {
-        res.status(200).send(Utils.successFalse(CODE.INTERNAL_SERVER_ERROR, FAIL_MSG.READ_USER))
+    const resultJson = await dbManager.selectUser({id: inputId})
+    if (resultJson === null) {
+        res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.NO_USER))
         return
     }
-    if (resultJson == undefined) {
-        res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.NO_USER))
+    if (resultJson == false) {
+        res.status(200).send(Utils.successFalse(CODE.INTERNAL_SERVER_ERROR, FAIL_MSG.READ_USER))
         return
     }
     const hashedPwd = await encryptionManager.encryption(inputPwd, resultJson.salt)
@@ -37,9 +37,7 @@ router.post('/', async (req, res) => {
         res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.MISS_MATCH_PW))
         return
     }
-    const resultData = {
-        user_idx: resultJson.userIdx
-    }
+    const resultData = resultJson.userIdx
     res.status(200).send(Utils.successTrue(CODE.OK, MSG.LOGIN_SUCCESS, resultData))
     return
 })
