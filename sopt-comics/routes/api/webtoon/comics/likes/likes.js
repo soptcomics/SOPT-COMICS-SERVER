@@ -48,7 +48,7 @@ router.post('/', async (req, res) => {
     }
     const validCheckLikes = await dbManager.selectLikes(jsonData)
     if(validCheckLikes != false){
-        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.ALREADY_LIKE_COMICS))
+        res.status(200).send(UTILS.successTrue(CODE.OK, MSG.ALREADY_LIKE_COMICS))
         return
     }
     const result = await dbManager.insertLikes(jsonData)
@@ -102,7 +102,7 @@ router.delete('/', async (req, res) => {
     const validCheckLikes = await dbManager.selectLikes(jsonData)
     if(validCheckLikes == false){
         console.log(validCheckLikes)
-        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.ALREADY_UNLIKE_COMICS))
+        res.status(200).send(UTILS.successTrue(CODE.OK, MSG.ALREADY_UNLIKE_COMICS))
         return
     }
     const result = await dbManager.deleteLikes(jsonData)
