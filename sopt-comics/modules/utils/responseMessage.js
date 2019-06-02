@@ -16,7 +16,6 @@ module.exports = {
     MISS_MATCH_PW: "비밀번호가 일치하지 않습니다",
     ID_OR_PW_NULL_VALUE: "아이디/비밀번호 값이 없습니다.",
 
-
     CREATED_COMICS: "만화 작성 성공",
         FAIL_CREATED_COMICS: "만화 작성 실패",
     READ_COMICS_ALL: "만화 전체 조회 성공",
@@ -51,8 +50,8 @@ module.exports = {
         FAIL_UPDATED_COMMENTS: "댓글 수정 실패",
     REMOVED_COMMTNES: "댓글 삭제 성공",
         FAIL_REMOVED_COMMTNES: "댓글 삭제 실패",
-
-
+        
+    OUT_OF_IMAGE_LIMIT_4: "이미지는 최대 4개까지 보낼 수 있습니다.",
         
     READ_BANNER: "메인 배너 조희 성공",
         FAIL_READ_BANNER: "메인 배너 조회 실패",
