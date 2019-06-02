@@ -13,9 +13,18 @@ METHOD      : GET
 URL         : /webtoon/comics/episodes/:episodeIdx/comments
 PARAMETER   : episodeIdx = Episode'sindex
 */
-router.get('/', (req, res) => {
-    const episodeIdx = req.params.episodeIdx
-    res.status(200).send("/webtoon/comics/episodes/:episodeIdx/comments")
+router.get('/', async (req, res) => {
+    const inputEpisodeIdx = req.params.episodeIdx
+    if(inputEpisodeIdx == undefined){
+        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.FAIL_READ_COMMENTS_ALL))
+        return
+    }
+    const result = await dbManager.selectCommentsAll({episodeIdx: inputEpisodeIdx})
+    if (result === undefined){        
+        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.FAIL_READ_COMMENTS_ALL))
+        return
+    }
+    res.status(200).send(UTILS.successTrue(CODE.OK, MSG.READ_COMMENTS_ALL, result))
 })
 
 /*
@@ -33,22 +42,28 @@ BODY        : {
 }
 */
 router.post('/', upload.array('image'), async (req, res) => {
-    const inputThumbnail = req.files[0].location  || undefined
+    
+    if (req.files.length > 4) {
+        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, OUT_OF_IMAGE_LIMIT_4))
+        return
+    }
+    
+    const inputImage = [null, null, null, null]
+    for(let i = 0; i < req.files.length; i++){
+        inputImage[i] = req.files[i].location
+    }
+
+    const inputThumbnail = inputImage[0]
     const inputImage1 = inputThumbnail
-    const inputImage2 = req.files[1].location || null
-    const inputImage3 = req.files[2].location || null
-    const inputImage4 = req.files[3].location || null
+    const inputImage2 = inputImage[1]
+    const inputImage3 = inputImage[2]
+    const inputImage4 = inputImage[3]
     const inputUserIdx = req.body.user_idx || null
     let inputName = req.body.name
     const inputContent = req.body.content
     const inputEpisodeIdx = req.body.episode_idx 
-
     if (inputThumbnail == undefined) {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
-        return
-    }
-    if (req.files.length > 4) {
-        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, OUT_OF_IMAGE_LIMIT_4))
         return
     }
     if(!inputName && inputUserIdx) {
@@ -72,6 +87,10 @@ router.post('/', upload.array('image'), async (req, res) => {
         userIdx: inputUserIdx
     }
     const result = await dbManager.insertComments(jsonData)
+    if(!result){
+        res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_CREATED_COMMENTS))
+        return
+    }
     res.status(200).send(UTILS.successTrue(CODE.OK, MSG.CREATED_COMMENTS))
 })
 module.exports = router
