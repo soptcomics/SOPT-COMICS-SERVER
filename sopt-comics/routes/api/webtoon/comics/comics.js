@@ -11,16 +11,6 @@ const FLAG_LIKE = 0
 const FLAG_RECENT = 1
 const FLAG_FINISHED = 2
 
-const convertComicsJson = (json) => {   
-    let dateTime = json.writetime
-    json.writetime = dateTime.replace(/-/g,".")
-}
-
-const convertEpisodeJson = (json) => {
-    let dateTime = json.writetime
-    json.writetime = dateTime.replace(/-/g,".")
-}
-
 /*
 메인화면 만화 목록
 METHOD      : GET
@@ -56,10 +46,6 @@ router.get('/sort/:flag', async (req, res) => {
         res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_COMICS_ALL))
         return
     }
-    for(const i in result){
-        const comicsData = result[i]
-        convertComicsJson(comicsData)
-    }
     const responseJson = result
     res.status(200).send(UTILS.successTrue(CODE.OK, MSG.READ_COMICS_ALL, responseJson))
 })
@@ -85,7 +71,6 @@ router.get('/:comicsIdx', async (req, res) => {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.NO_COMICS))
         return
     }
-
     const resultEpisodeArray = await dbManager.selectEpisodeAll({
         comicsIdx: inputComicsIdx
     }, {
@@ -94,10 +79,6 @@ router.get('/:comicsIdx', async (req, res) => {
     if (resultEpisodeArray === false) {
         res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_COMICS))
         return
-    }
-    for(const i in resultEpisodeArray){
-        const episodeData = resultEpisodeArray[i]
-        convertEpisodeJson(episodeData)
     }
     const jsonData = {
         comicsIdx: inputComicsIdx,

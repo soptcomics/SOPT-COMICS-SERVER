@@ -7,6 +7,10 @@ const TABLE_EPISODE = 'episode'
 const TABLE_COMMENT = 'comment'
 const TABLE_LIKED = 'liked'
 
+const convertWriteTime = (dateTime) => {
+    return dateTime.replace(/-/g,".")
+}
+
 const dbManager = {
     insertUser: async (jsonData) => {
         const result = await db_insert(TABLE_USER, jsonData)
@@ -43,6 +47,10 @@ const dbManager = {
     },
     selectComicsAll: async (whereJson, orderBy) => {
         const result = await db_select(TABLE_COMICS, whereJson, orderBy)
+        for(const i in result){
+            const comicsData = result[i]
+            comicsData.writetime = convertWriteTime(comicsData.writetime)
+        }
         return result
     },
     insertEpisode: async (jsonData) => {
@@ -52,10 +60,19 @@ const dbManager = {
     selectEpisode: async (whereJson, orderBy) => {
         const result = await db_select(TABLE_EPISODE, whereJson, orderBy)
         if (result.length == 0) return null
-        return result[0]
+        result.writetime = convertWriteTime(result[0].writetime)
+        return convertedResult
     },
     selectEpisodeAll: async (whereJson, orderBy) => {
-        const result = await db_select(TABLE_EPISODE, whereJson, orderBy)
+        const result = await db_select(TABLE_EPISODE, whereJson, orderBy)    
+        for(const i in resultEpisodeArray){
+            const episodeData = resultEpisodeArray[i]
+            episodeData.writetime = convertEpisodeJson(episodeData.writetime)
+        }
+        return result
+    },
+    insertComments: async (jsonData) => {
+        const result = await db_insert(TABLE_COMMENT, jsonData)
         return result
     }
 }
