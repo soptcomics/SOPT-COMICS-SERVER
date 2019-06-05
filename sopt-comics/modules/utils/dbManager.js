@@ -61,13 +61,13 @@ const dbManager = {
         const result = await db_select(TABLE_EPISODE, whereJson, orderBy)
         if (result.length == 0) return null
         result.writetime = convertWriteTime(result[0].writetime)
-        return convertedResult
+        return result
     },
     selectEpisodeAll: async (whereJson, orderBy) => {
         const result = await db_select(TABLE_EPISODE, whereJson, orderBy)
-        for (const i in resultEpisodeArray) {
-            const episodeData = resultEpisodeArray[i]
-            episodeData.writetime = convertEpisodeJson(episodeData.writetime)
+        for (const i in result) {
+            const episodeData = result[i]
+            episodeData.writetime = convertWriteTime(episodeData.writetime)
         }
         return result
     },
