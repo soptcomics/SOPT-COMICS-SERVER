@@ -7,18 +7,50 @@ const TABLE_EPISODE = 'episode'
 const TABLE_COMMENT = 'comment'
 const TABLE_LIKED = 'liked'
 
+const convertWriteTime = (dateTime) => {
+    return dateTime.replace(/-/g, ".")
+}
+
 const dbManager = {
+    insertUser: async (jsonData) => {
+        const result = await db_insert(TABLE_USER, jsonData)
+        return result
+    },
+    selectUser: async (whereJson) => {
+        const result = await db_select(TABLE_USER, whereJson)
+        if (result.length == undefined) return false
+        if (result.length == 0) return null
+        if (result == null) return false
+        return result[0]
+    },
+    selectLikes: async (jsonData) => {
+        const result = await db_select(TABLE_LIKED, jsonData)
+        return result
+    },
+    insertLikes: async (jsonData) => {
+        const result = await db_insert(TABLE_LIKED, jsonData)
+        return result
+    },
+    deleteLikes: async (jsonData) => {
+        const result = await db_delete(TABLE_LIKED, jsonData)
+        return result
+    },
     insertComics: async (jsonData) => {
         const result = await db_insert(TABLE_COMICS, jsonData)
         return result
     },
     selectComics: async (whereJson) => {
         const result = await db_select(TABLE_COMICS, whereJson)
-        if(result.length == 0) return null
+        if (result.length == undefined) return false
+        if (result.length == 0) return null
         return result[0]
     },
     selectComicsAll: async (whereJson, orderBy) => {
         const result = await db_select(TABLE_COMICS, whereJson, orderBy)
+        for (const i in result) {
+            const comicsData = result[i]
+            comicsData.writetime = convertWriteTime(comicsData.writetime)
+        }
         return result
     },
     insertEpisode: async (jsonData) => {
@@ -27,12 +59,43 @@ const dbManager = {
     },
     selectEpisode: async (whereJson, orderBy) => {
         const result = await db_select(TABLE_EPISODE, whereJson, orderBy)
-        if(result.length == 0) return null
-        return result[0]
+        if (result.length == 0) return null
+        result.writetime = convertWriteTime(result[0].writetime)
+        return result
     },
     selectEpisodeAll: async (whereJson, orderBy) => {
         const result = await db_select(TABLE_EPISODE, whereJson, orderBy)
+        for (const i in result) {
+            const episodeData = result[i]
+            episodeData.writetime = convertWriteTime(episodeData.writetime)
+        }
         return result
+    },
+    insertComments: async (jsonData) => {
+        const result = await db_insert(TABLE_COMMENT, jsonData)
+        return result
+    },
+    selectCommentsAll: async (whereJson, orderBy) => {
+        const result = await db_select(TABLE_COMMENT, whereJson, orderBy)
+        if (result.length == undefined) return false
+        const convertedResult = []
+        for (const comment of result) {
+            const imageArray = []
+            if(comment.image1) imageArray.push(comment.image1)
+            if(comment.image2) imageArray.push(comment.image2)
+            if(comment.image3) imageArray.push(comment.image3)
+            if(comment.image4) imageArray.push(comment.image4)
+            convertedResult.push({
+                commentIdx: comment.commentIdx,
+                name: comment.name,
+                content: comment.content,
+                writetime: convertWriteTime(comment.writetime),
+                image: imageArray,
+                episodeIdx: comment.episodeIdx,
+                userIdx: comment.userIdx
+            })
+        }
+        return convertedResult
     }
 }
 
@@ -46,9 +109,13 @@ function makeOrderByQuery(orderBy) {
 }
 
 function makeWhereQuery(whereJson) {
-    if(whereJson == undefined) return ""
-    let conditions = makeConditions(whereJson)
-    whereStr = `WHERE ${conditions}`
+    if (whereJson == undefined) return ""
+    let conditions = ""
+    for (let key in whereJson) {
+        const condition = `${key} = '${whereJson[key]}'`
+        conditions = `${conditions} AND ${condition}`
+    }
+    whereStr = `WHERE ${conditions.substring(5)}`
     return whereStr
 }
 
@@ -69,7 +136,7 @@ function makeFields(fieldArr) {
     return fields.substring(1)
 }
 
-function makeFieldsValueQuery(jsonData){
+function makeFieldsValueQuery(jsonData) {
     const values = []
     let fields = ""
     let questions = ""
@@ -80,11 +147,15 @@ function makeFieldsValueQuery(jsonData){
         values.push(value)
         questions = questions + ",?"
     }
-    return {fields: fields.substring(1), questions: questions.substring(1), values: values}
+    return {
+        fields: fields.substring(1),
+        questions: questions.substring(1),
+        values: values
+    }
 }
 
 async function db_select(table, whereJson, orderBy) {
-    let whereStr = makeWhereQuery(whereJson)
+    let whereStr = makeWhereQuery(whereJson, ' AND ')
     let orderByStr = makeOrderByQuery(orderBy)
     const query = `SELECT * FROM ${table} ${whereStr} ${orderByStr}`
     console.log(query)
@@ -107,7 +178,7 @@ async function db_insert(table, jsonData) {
 
 async function db_delete(table, whereJson) {
     let whereStr = makeWhereQuery(whereJson)
-    const query = `DELETE FROM ${table} ${whereStr}}`
+    const query = `DELETE FROM ${table} ${whereStr}`
     const result = await db.queryParam_None(query)
     if (result == null) return false
     return result
