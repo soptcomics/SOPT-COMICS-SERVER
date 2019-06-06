@@ -7,10 +7,6 @@ const MSG = require('../../../../modules/utils/responseMessage')
 const dbManager = require('../../../../modules/utils/dbManager')
 const upload = require('../../../../config/multer')
 
-const convertEpisodeJson = (json) => {
-    let dateTime = json.writetime
-    json.writetime = dateTime.replace(/-/g,".")
-}
 /*
 NOTHING
 METHOD      : GET
@@ -41,7 +37,6 @@ router.get('/:episodeIdx', async (req, res) => {
         res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_EPISODE))
         return
     }
-    convertEpisodeJson(result)
     const responseJson = result
     res.status(200).send(UTILS.successTrue(CODE.OK, MSG.READ_EPISODE, responseJson))
 })
