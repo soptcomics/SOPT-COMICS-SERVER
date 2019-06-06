@@ -30,7 +30,7 @@ const convertComics = (comicsData) => {
         likes: comicsData.likes,
         thumbnail: comicsData.thumbnail,
         datetime: convertWriteTime(comicsData.writetime),
-        isfinished: comicsData.isFinished
+        isfinished: comicsData.isFinished == 1
     }
 }
 
