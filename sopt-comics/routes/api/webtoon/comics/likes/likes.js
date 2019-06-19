@@ -24,37 +24,32 @@ router.post('/', authUtil.isLoggedin, async (req, res) => {
             res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
             return
     }
-    const validCheckUser = await dbManager.selectUser({userIdx: inputUserIdx})
-    if (validCheckUser === null) {
-        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.NO_USER))
+    const existUser = await dbManager.selectUser({userIdx: inputUserIdx})
+    if (existUser.isError == true) {
+        res.status(200).send(existUser.jsonData)
         return
     }
-    if (validCheckUser == false) {
-        res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_LIKE_COMICS))
-        return
-    }
-    const validCheckComics = await dbManager.selectComics({comicsIdx: inputComicsIdx})
-    if (validCheckComics === null) {
-        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.NO_COMICS))
-        return
-    }
-    if (validCheckComics == false) {
-        console.log(validCheckComics)
-        res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_LIKE_COMICS))
+    const existComics = await dbManager.selectComics({comicsIdx: inputComicsIdx})
+    if (existComics.isError == true) {
+        res.status(200).send(existComics.jsonData)
         return
     }
     const jsonData = {
         comicsIdx: inputComicsIdx,
         userIdx: inputUserIdx
     }
-    const validCheckLikes = await dbManager.selectLikes(jsonData)
-    if(validCheckLikes != false){
+    const existLike = await dbManager.selectLikes(jsonData)
+    if(existLike.isError == true){
+        res.status(200).send(existLike.jsonData)
+        return
+    }
+    if(existLike.length > 0) {
         res.status(200).send(UTILS.successTrue(CODE.OK, MSG.ALREADY_LIKE_COMICS))
         return
     }
     const result = await dbManager.insertLikes(jsonData)
-    if(result == false){
-        res.status(200).send(UTILS.successFalse(CODE.INTERNAL_SERVER_ERROR, MSG.FAIL_LIKE_COMICS))
+    if(result.isError == true){
+        res.status(200).send(result.jsonData)
         return
     }
     res.status(200).send(UTILS.successTrue(CODE.OK, MSG.LIKE_COMICS))
@@ -77,38 +72,32 @@ router.delete('/', authUtil.isLoggedin, async (req, res) => {
             res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
             return
     }
-    const validCheckUser = await dbManager.selectUser({userIdx: inputUserIdx})
-    if (validCheckUser === null) {
-        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.NO_USER))
+    const existUser = await dbManager.selectUser({userIdx: inputUserIdx})
+    if (existUser.isError == true) {
+        res.status(200).send(existUser.JsonData)
         return
     }
-    if (validCheckUser == false) {
-        res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_UNLIKE_COMICS))
-        return
-    }
-    const validCheckComics = await dbManager.selectComics({comicsIdx: inputComicsIdx})
-    if (validCheckComics === null) {
-        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.NO_COMICS))
-        return
-    }
-    if (validCheckComics == false) {
-        console.log(validCheckComics)
-        res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_UNLIKE_COMICS))
+    const existComics = await dbManager.selectComics({comicsIdx: inputComicsIdx})
+    if (existComics.isError == true) {
+        res.status(200).send(existComics.jsonData)
         return
     }
     const jsonData = {
         comicsIdx: inputComicsIdx,
         userIdx: inputUserIdx
     }
-    const validCheckLikes = await dbManager.selectLikes(jsonData)
-    if(validCheckLikes == false){
-        console.log(validCheckLikes)
+    const existLike = await dbManager.selectLikes(jsonData)
+    if(existLike.isError == true){
+        res.status(200).send(existLike.jsonData)
+        return
+    }
+    if(existLike.length == 0) {
         res.status(200).send(UTILS.successTrue(CODE.OK, MSG.ALREADY_UNLIKE_COMICS))
         return
     }
     const result = await dbManager.deleteLikes(jsonData)
-    if(result == false){
-        res.status(200).send(UTILS.successFalse(CODE.INTERNAL_SERVER_ERROR, MSG.FAIL_UNLIKE_COMICS))
+    if(result.isError == true){
+        res.status(200).send(result.jsonData)
         return
     }
     res.status(200).send(UTILS.successTrue(CODE.OK, MSG.UNLIKE_COMICS))

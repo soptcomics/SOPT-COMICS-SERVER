@@ -68,6 +68,10 @@ router.post('/', upload.array('image'), async (req, res) => {
     }
     if(!inputName && inputUserIdx) {
         const resultUser = await dbManager.selectUser({userIdx: inputUserIdx})
+        if(resultUser.isError == true){
+            res.status(200).send(result.jsonData)
+            return
+        }
         inputName = resultUser.name
     }
     if (inputName == undefined ||
@@ -87,8 +91,8 @@ router.post('/', upload.array('image'), async (req, res) => {
         userIdx: inputUserIdx
     }
     const result = await dbManager.insertComments(jsonData)
-    if(!result){
-        res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_CREATED_COMMENTS))
+    if(result.isError == true){
+        res.status(200).send(result.jsonData)
         return
     }
     res.status(200).send(UTILS.successTrue(CODE.OK, MSG.CREATED_COMMENTS))

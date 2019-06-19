@@ -16,25 +16,22 @@ router.post('/', async (req, res) => {
         return
     }
     const payload = await jwtUtils.getPayload(inputToken)
+    console.log(payload)
     if(payload == jwtUtils.TOKEN_INVALID) {
         res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.INVALID_TOKEN))
         return
     }
     const resultJson = await dbManager.selectUser({userIdx: payload.userIdx})
-    if(resultJson === undefined){
-        res.status(200).send(Utils.successFalse(CODE.DB_ERROR, FAIL_MSG.READ_USER))
-        return
-    }
-    if (resultJson == false) {
-        res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.NO_USER))
+    if(resultJson.isError == true){
+        res.status(200).send(resultJson.jsonData)
         return
     }
     if (!resultJson.refreshToken){
         res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.EMPTY_REFRESH_TOKEN))
         return
-    }
+    }   
     if (resultJson.refreshToken != inputRefreshToken){
-        res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.INVALID_TOKEN))
+        res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.INVALID_REFRESH_TOKEN))
         return
     }
     const newToken = jwtUtils.refresh(resultJson)

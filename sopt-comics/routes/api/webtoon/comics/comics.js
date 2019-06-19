@@ -39,12 +39,8 @@ router.get('/sort/:flag', async (req, res) => {
             return
     }
     const result = await dbManager.selectComicsAll(whereJson, orderBy)
-    if(result === null){
-        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.NO_COMICS))
-        return
-    }
-    if(result === false){
-        res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_COMICS_ALL))
+    if(result.isError == true){
+        res.status(200).send(result.jsonData)
         return
     }
     const responseJson = result
@@ -59,16 +55,15 @@ PARAMETER   : comicsIdx = comics index
 */
 router.get('/:comicsIdx', authUtil.checkToken, async (req, res) => {
     const inputComicsIdx = req.params.comicsIdx
-
     const decodedToken = req.decoded
     let inputUserIdx = decodedToken ? decodedToken.userIdx :  -1
     if (inputComicsIdx == undefined) {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
         return
     }
-    const resultCheckComicsIdx = await dbManager.selectComics({comicsIdx: inputComicsIdx})
-    if(!resultCheckComicsIdx){
-        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.NO_COMICS))
+    const existComics = await dbManager.selectComics({comicsIdx: inputComicsIdx})
+    if(existComics.isError == true){
+        res.status(200).send(existComics.jsonData)
         return
     }
     const resultEpisodeArray = await dbManager.selectEpisodeAll({
@@ -76,8 +71,8 @@ router.get('/:comicsIdx', authUtil.checkToken, async (req, res) => {
     }, {
         episodeIdx: "DESC"
     })
-    if (resultEpisodeArray === false) {
-        res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_COMICS))
+    if (resultEpisodeArray.isError == true) {
+        res.status(200).send(resultEpisodeArray.jsonData)
         return
     }
     if(inputUserIdx == -1){
@@ -92,8 +87,12 @@ router.get('/:comicsIdx', authUtil.checkToken, async (req, res) => {
         comicsIdx: inputComicsIdx,
         userIdx: inputUserIdx
     }
-    const validCheckLikes = await dbManager.selectLikes(jsonData)
-    const resultLiked = validCheckLikes != false
+    const existLike = await dbManager.selectLikes(jsonData)
+    if(existLike.isError == true){
+        res.status(200).send(existLike.jsonData)
+        return
+    }
+    const resultLiked = existLike != false
     const responseJson = {
         liked: resultLiked,
         episode_list: resultEpisodeArray

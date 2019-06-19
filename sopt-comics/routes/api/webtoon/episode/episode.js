@@ -23,18 +23,13 @@ PARAMETER   : episodeIDx = episode's index
 */
 router.get('/:episodeIdx', async (req, res) => {
     const inputEpisodeIdx = req.params.episodeIdx
-    // 1. 파라미터(idx) 체크 => 실패시 CODE: 400, MSG : OUT_OF_VALUE
     if (inputEpisodeIdx == undefined) {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
         return
     }
     const result = await dbManager.selectEpisode({episodeIdx: inputEpisodeIdx})
-    if(result == null) {
-        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.NO_EPISODE))
-        return
-    }
-    if(result == false) {
-        res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_EPISODE))
+    if(result.isError == true) {
+        res.status(200).send(result.jsonData)
         return
     }
     const responseJson = result
@@ -79,9 +74,8 @@ router.post('/', upload.array('images'), async (req, res) => {
         imageUrl: inputImageUrl
     }
     const result = await dbManager.insertEpisode(jsonData)
-    if(result == false) {
-        console.log(result)
-        res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_CREATED_EPISODE))
+    if(result.isError == true) {
+        res.status(200).send(result.jsonData)
         return
     }
     res.status(200).send(UTILS.successTrue(CODE.OK, MSG.CREATED_EPISODE))
