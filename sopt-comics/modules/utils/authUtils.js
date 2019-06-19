@@ -26,7 +26,6 @@ const authUtil = {
     },
     checkToken: async(req, res, next) => {
         var token = req.headers.token
-
         if (!token) {
             req.decoded = null
             next()

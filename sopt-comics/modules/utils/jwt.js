@@ -1,10 +1,14 @@
 var randToken = require('rand-token')
 const jwt = require('jsonwebtoken')
 const secretKey = require('../../config/secret.key')
+const dbManager = require('../../modules/utils/dbManager')
 const secretOrPrivateKey = secretKey.secretOrPrivateKey
 const options = secretKey.jwtOptions
 const refreshOptions = secretKey.jwtRefreshOptions
 
+
+const TOKEN_EXPIRED = -3
+const TOKEN_INVALID = -2
 module.exports = {
     sign: (user) => {
         const payload = {
@@ -17,8 +21,7 @@ module.exports = {
         }
         //refreshToken을 만들 때에도 다른 키를 쓰는게 좋다.
         //대부분 2주로 만든다.
-
-        return result;
+        return result
     },
     verify: (token) => {
         let decoded;
@@ -27,26 +30,41 @@ module.exports = {
         } catch (err) {
             if (err.message === 'jwt expired') {
                 console.log('expired token');
-                return this.TOKEN_EXPIRED;
+                return TOKEN_EXPIRED;
             } else if (err.message === 'invalid token') {
                 console.log('invalid token');
-                return this.TOKEN_INVALID;
+                return TOKEN_INVALID;
             } else {
                 console.log("invalid token");
-                return this.TOKEN_INVALID;
+                return TOKEN_INVALID;
             }
         }
         return decoded;
     },
+    getPayload: (token) => {
+        let decoded
+        try {
+            decoded = jwt.verify(token, secretOrPrivateKey, {
+                ignoreExpiration: true
+            })
+        } catch (err) {
+            if (err.message === 'invalid token') {
+                console.log('invalid token')
+                return TOKEN_INVALID
+            } else {
+                console.log("invalid token")
+                return TOKEN_INVALID
+            }
+        }
+        return decoded
+    },
     refresh: (user) => {
         const payload = {
-            idx: user.idx,
-            grade: user.grade,
+            userIdx: user.userIdx,
             name: user.name
-        };
-
+        }
         return jwt.sign(payload, secretOrPrivateKey, options);
     },
-    TOKEN_EXPIRED : -3,
-    TOKEN_INVALID : -2,
-};
+    TOKEN_EXPIRED: TOKEN_EXPIRED,
+    TOKEN_INVALID: TOKEN_INVALID
+}
