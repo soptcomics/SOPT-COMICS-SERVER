@@ -40,6 +40,11 @@ router.post('/', async (req, res) => {
     }   
     const tokens = jwtUtils.sign(resultJson)
     const resultData = tokens
+    const resultUpdate = dbManager.updateUserRefreshToken(tokens.refresh_token, resultJson.userIdx)
+    if (!resultUpdate) {
+        res.status(200).send(Utils.successFalse(CODE.DB_ERROR, FAIL_MSG.READ_USER))
+        return
+    }
     res.status(200).send(Utils.successTrue(CODE.OK, MSG.READ_USER, resultData))
     return
 })

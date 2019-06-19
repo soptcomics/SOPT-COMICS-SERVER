@@ -1,6 +1,7 @@
 var randToken = require('rand-token')
 const jwt = require('jsonwebtoken')
 const secretKey = require('../../config/secret.key')
+const dbManager = require('../../modules/utils/dbManager')
 const secretOrPrivateKey = secretKey.secretOrPrivateKey
 const options = secretKey.jwtOptions
 const refreshOptions = secretKey.jwtRefreshOptions
@@ -17,8 +18,7 @@ module.exports = {
         }
         //refreshToken을 만들 때에도 다른 키를 쓰는게 좋다.
         //대부분 2주로 만든다.
-
-        return result;
+        return result
     },
     verify: (token) => {
         let decoded;
@@ -38,13 +38,15 @@ module.exports = {
         }
         return decoded;
     },
+    getPayload: (token) => {
+        const decoded = jwt.verify(token, secretOrPrivateKey,{ignoreExpiration: true})
+        return decoded
+    },
     refresh: (user) => {
         const payload = {
-            idx: user.idx,
-            grade: user.grade,
+            userIdx: user.userIdx,
             name: user.name
-        };
-
+        }
         return jwt.sign(payload, secretOrPrivateKey, options);
     },
     TOKEN_EXPIRED : -3,

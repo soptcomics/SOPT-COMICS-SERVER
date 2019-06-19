@@ -45,6 +45,12 @@ const dbManager = {
         if (result.length == 0) return null
         return result[0]
     },
+    updateUserRefreshToken: async (refreshToken, userIdx) => {
+        const result = await db_update(TABLE_USER, {refreshToken: refreshToken}, {userIdx : userIdx})
+        if (result.length == undefined) return false
+        if (result.length == 0) return null
+        return result[0]
+    },
     selectLikes: async (jsonData) => {
         const result = await db_select(TABLE_LIKED, jsonData)
         return result
