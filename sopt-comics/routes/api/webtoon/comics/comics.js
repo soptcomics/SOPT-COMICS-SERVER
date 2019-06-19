@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
+const authUtil = require('../../../../modules/utils/authUtils')
 const UTILS = require('../../../../modules/utils/utils')
 const CODE = require('../../../../modules/utils/statusCode')
 const MSG = require('../../../../modules/utils/responseMessage')
@@ -56,13 +57,12 @@ METHOD      : GET
 URL         : /webtoon/comics/:comicsIdx
 PARAMETER   : comicsIdx = comics index
 */
-router.get('/:comicsIdx', async (req, res) => {
+router.get('/:comicsIdx', authUtil.checkToken, async (req, res) => {
     const inputComicsIdx = req.params.comicsIdx
-    // TODO UserIdx를 어떻게 가져올것인가. JWT?
-    const inputUserIdx = 3
 
-    if (inputComicsIdx == undefined ||
-        inputUserIdx == undefined) {
+    const decodedToken = req.decoded
+    let inputUserIdx = decodedToken ? decodedToken.userIdx :  -1
+    if (inputComicsIdx == undefined) {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
         return
     }
@@ -78,6 +78,14 @@ router.get('/:comicsIdx', async (req, res) => {
     })
     if (resultEpisodeArray === false) {
         res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_COMICS))
+        return
+    }
+    if(inputUserIdx == -1){
+        const responseJson = {
+            liked: false,
+            episode_list: resultEpisodeArray
+        }
+        res.status(200).send(UTILS.successTrue(CODE.OK, MSG.READ_COMICS_OFFLINE, responseJson))
         return
     }
     const jsonData = {

@@ -11,6 +11,29 @@ const convertWriteTime = (dateTime) => {
     return dateTime.replace(/-/g, ".")
 }
 
+const convertEpisode = (episodeData) => {
+    return {
+        episode_idx: episodeData.episodeIdx,
+        title: episodeData.title,
+        thumbnail: episodeData.thumbnail,
+        hits: episodeData.hits,
+        datetime: convertWriteTime(episodeData.writetime),
+        image_url: episodeData.imageUrl
+    }
+}
+
+const convertComics = (comicsData) => {
+    return {
+        comics_idx: comicsData.comicsIdx,
+        title: comicsData.title,
+        writer: comicsData.writer,
+        likes: comicsData.likes,
+        thumbnail: comicsData.thumbnail,
+        datetime: convertWriteTime(comicsData.writetime),
+        isfinished: comicsData.isFinished == 1
+    }
+}
+
 const dbManager = {
     insertUser: async (jsonData) => {
         const result = await db_insert(TABLE_USER, jsonData)
@@ -20,7 +43,12 @@ const dbManager = {
         const result = await db_select(TABLE_USER, whereJson)
         if (result.length == undefined) return false
         if (result.length == 0) return null
-        if (result == null) return false
+        return result[0]
+    },
+    updateUserRefreshToken: async (refreshToken, userIdx) => {
+        const result = await db_update(TABLE_USER, {refreshToken: refreshToken}, {userIdx : userIdx})
+        if (result.length == undefined) return false
+        if (result.length == 0) return null
         return result[0]
     },
     selectLikes: async (jsonData) => {
@@ -43,15 +71,17 @@ const dbManager = {
         const result = await db_select(TABLE_COMICS, whereJson)
         if (result.length == undefined) return false
         if (result.length == 0) return null
-        return result[0]
+        return convertComics(result[0])
     },
     selectComicsAll: async (whereJson, orderBy) => {
         const result = await db_select(TABLE_COMICS, whereJson, orderBy)
+        if (result.length == undefined) return false
+        const convertedResult = []
         for (const i in result) {
             const comicsData = result[i]
-            comicsData.writetime = convertWriteTime(comicsData.writetime)
+            convertedResult.push(convertComics(comicsData))
         }
-        return result
+        return convertedResult
     },
     insertEpisode: async (jsonData) => {
         const result = await db_insert(TABLE_EPISODE, jsonData)
@@ -59,17 +89,19 @@ const dbManager = {
     },
     selectEpisode: async (whereJson, orderBy) => {
         const result = await db_select(TABLE_EPISODE, whereJson, orderBy)
+        if (result.length == undefined) return false
         if (result.length == 0) return null
-        result.writetime = convertWriteTime(result[0].writetime)
-        return result
+        return convertEpisode(result[0])
     },
     selectEpisodeAll: async (whereJson, orderBy) => {
         const result = await db_select(TABLE_EPISODE, whereJson, orderBy)
+        if (result.length == undefined) return false
+        const convertedResult = []
         for (const i in result) {
             const episodeData = result[i]
-            episodeData.writetime = convertWriteTime(episodeData.writetime)
+            convertedResult.push(convertEpisode(episodeData))
         }
-        return result
+        return convertedResult
     },
     insertComments: async (jsonData) => {
         const result = await db_insert(TABLE_COMMENT, jsonData)
@@ -86,13 +118,13 @@ const dbManager = {
             if(comment.image3) imageArray.push(comment.image3)
             if(comment.image4) imageArray.push(comment.image4)
             convertedResult.push({
-                commentIdx: comment.commentIdx,
+                comment_idx: comment.commentIdx,
                 name: comment.name,
                 content: comment.content,
-                writetime: convertWriteTime(comment.writetime),
-                image: imageArray,
-                episodeIdx: comment.episodeIdx,
-                userIdx: comment.userIdx
+                datetime: convertWriteTime(comment.writetime),
+                image_url_list: imageArray,
+                episode_idx: comment.episodeIdx,
+                user_idx: comment.userIdx
             })
         }
         return convertedResult

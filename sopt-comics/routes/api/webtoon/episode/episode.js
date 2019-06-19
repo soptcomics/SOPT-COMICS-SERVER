@@ -7,14 +7,10 @@ const MSG = require('../../../../modules/utils/responseMessage')
 const dbManager = require('../../../../modules/utils/dbManager')
 const upload = require('../../../../config/multer')
 
-const convertEpisodeJson = (json) => {
-    let dateTime = json.writetime
-    json.writetime = dateTime.replace(/-/g,".")
-}
 /*
 NOTHING
 METHOD      : GET
-URL         : /webtoon/comics/episodes/
+URL         : /webtoon/comics/episode/
 */
 router.get('/', (req, res) => {  
     res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
@@ -22,7 +18,7 @@ router.get('/', (req, res) => {
 /*
 에피소드 보기
 METHOD      : GET
-URL         : /webtoon/comics/episodes/:idx
+URL         : /webtoon/comics/episode/:idx
 PARAMETER   : episodeIDx = episode's index
 */
 router.get('/:episodeIdx', async (req, res) => {
@@ -41,7 +37,6 @@ router.get('/:episodeIdx', async (req, res) => {
         res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_EPISODE))
         return
     }
-    convertEpisodeJson(result)
     const responseJson = result
     res.status(200).send(UTILS.successTrue(CODE.OK, MSG.READ_EPISODE, responseJson))
 })
@@ -49,7 +44,7 @@ router.get('/:episodeIdx', async (req, res) => {
 /*
 에피소드 쓰기
 METHOD      : Multipart/form-data
-URL         : /webtoon/comics/episodes/
+URL         : /webtoon/comics/episode/
 BODY        : {
     "title" : "에피소드 제목",
     "comics_idx" : 4,
@@ -95,7 +90,7 @@ router.post('/', upload.array('images'), async (req, res) => {
 /*
 에피소드 수정하기
 METHOD      : PUT
-URL         : /webtoon/comics/episodes/
+URL         : /webtoon/comics/episode/
 BODY        : {
     
 }

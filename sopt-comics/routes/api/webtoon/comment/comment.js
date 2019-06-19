@@ -10,7 +10,7 @@ const upload = require('../../../../config/multer')
 /*
 댓글 전체 읽기
 METHOD      : GET
-URL         : /webtoon/comics/episodes/:episodeIdx/comments
+URL         : /webtoon/comics/episodes/:episodeIdx/comment
 PARAMETER   : episodeIdx = Episode'sindex
 */
 router.get('/', async (req, res) => {
@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
 /*
 댓글 쓰기
 METHOD      : POST
-URL         : /webtoon/comics/episodes/:episode_idx/comments
+URL         : /webtoon/comics/episodes/:episode_idx/comment
 BODY        : {
     "name": "이름", // nullable, 익명 댓글 이름
     "image1": "이미지1", //nullable

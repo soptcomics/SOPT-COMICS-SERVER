@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 
+const authUtil = require('../../../../../modules/utils/authUtils')
 const UTILS = require('../../../../../modules/utils/utils')
 const CODE = require('../../../../../modules/utils/statusCode')
 const MSG = require('../../../../../modules/utils/responseMessage')
@@ -15,9 +16,9 @@ BODY        : {
     "user_idx" : "유저 id"
 }
 */
-router.post('/', async (req, res) => {
+router.post('/', authUtil.isLoggedin, async (req, res) => {
     const inputComicsIdx = req.body.comics_idx
-    const inputUserIdx = req.body.user_idx
+    const inputUserIdx = req.decoded.userIdx
     if (inputComicsIdx == undefined |
         inputUserIdx == undefined) {
             res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
@@ -68,9 +69,9 @@ BODY        : {
     "user_idx" : "유저 id"
 }
 */
-router.delete('/', async (req, res) => {
+router.delete('/', authUtil.isLoggedin, async (req, res) => {
     const inputComicsIdx = req.body.comics_idx
-    const inputUserIdx = req.body.user_idx
+    const inputUserIdx = req.decoded.userIdx
     if (inputComicsIdx == undefined |
         inputUserIdx == undefined) {
             res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
