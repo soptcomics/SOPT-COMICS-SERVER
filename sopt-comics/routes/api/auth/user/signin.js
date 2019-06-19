@@ -6,6 +6,7 @@ const CODE = require('../../../../modules/utils/statusCode')
 const MSG = require('../../../../modules/utils/responseMessage')
 const encryptionManager = require('../../../../modules/utils/encryptionManager')
 const dbManager = require('../../../../modules/utils/dbManager')
+const jwtUtils = require('../../../../modules/utils/jwt');
 
 /*
 로그인
@@ -36,9 +37,10 @@ router.post('/', async (req, res) => {
     if (resultJson.password != hashedPwd) {
         res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.MISS_MATCH_PW))
         return
-    }
-    const resultData = resultJson.userIdx
-    res.status(200).send(Utils.successTrue(CODE.OK, MSG.LOGIN_SUCCESS, resultData))
+    }   
+    const tokens = jwtUtils.sign(resultJson)
+    const resultData = tokens
+    res.status(200).send(Utils.successTrue(CODE.OK, MSG.READ_USER, resultData))
     return
 })
 

@@ -21,6 +21,7 @@ module.exports = {
     READ_COMICS_ALL: "만화 전체 조회 성공",
         FAIL_READ_COMICS_ALL: "만화 전체 조회 실패",
     READ_COMICS: "만화 상세 조회 성공",
+    READ_COMICS_OFFLINE: "만화 상세 조회 성공(비로그인)",
         FAIL_READ_COMICS: "만화 상세 조회 실패",
     UPDATED_COMICS: "만화 수정 성공",
         FAIL_UPDATED_COMICS: "만화 수정 실패",
@@ -65,7 +66,13 @@ module.exports = {
     UNLIKE_COMICS: "좋아요 취소",
         ALREADY_UNLIKE_COMICS: "이미 좋아요 취소 상태 입니다.",
         FAIL_UNLIKE_COMICS: "좋아요 취소 실패",
-
+    CREATE_TOKEN: "토큰 발급 완료.",
+    EXPRIED_TOKEN: "만료된 토큰입니다.",
+    REFRESH_TOKEN: "토큰 재발급 완료.",
+    EMPTY_REFRESH_TOKEN: "재발급 토큰이 존재하지 않습니다.",
+    EMPTY_TOKEN: "토큰값이 존재하지 않습니다.",
+    NO_SELECT_AUTHORITY: "조회 권한 없음.",
+    INVALID_TOKEN: "잘못된 형식의 토큰입니다.",
 
     FAIL_ENCRYPTION: "암호화에 실패했습니다.",
     FAIL_DB_READ: "DB 읽기 실패",
