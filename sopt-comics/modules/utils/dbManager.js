@@ -1,6 +1,8 @@
 const db = require('./pool')
 const MSG = require('../../modules/utils/responseMessage')
-
+const CODE = require('../utils/statusCode')
+const Utils = require('../../modules/utils/utils')
+const errorMsg = require('./errorUtils')
 const TABLE_USER = 'user'
 const TABLE_COMICS = 'comics'
 const TABLE_EPISODE = 'episode'
@@ -37,45 +39,88 @@ const convertComics = (comicsData) => {
 const dbManager = {
     insertUser: async (jsonData) => {
         const result = await db_insert(TABLE_USER, jsonData)
+        if (!result) {
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_CREATED_USER))
+        }
         return result
     },
     selectUser: async (whereJson) => {
         const result = await db_select(TABLE_USER, whereJson)
-        if (result.length == undefined) return false
-        if (result.length == 0) return null
+        if (result.length == undefined) {
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_USER))
+        }
+        if (result.length == 0) {
+            return new errorMsg(true, Utils.successFalse(CODE.BAD_REQUEST, MSG.NO_USER))
+        }
         return result[0]
     },
+    existUser: async (whereJson) => {
+        const result = await db_select(TABLE_USER, whereJson)
+        if (result.length == undefined) {
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_USER))
+        }
+        if (result.length != 0) {
+            return new errorMsg(true, Utils.successFalse(CODE.BAD_REQUEST, MSG.ALREADY_USER))
+        }
+        return true
+    },
     updateUserRefreshToken: async (refreshToken, userIdx) => {
-        const result = await db_update(TABLE_USER, {refreshToken: refreshToken}, {userIdx : userIdx})
-        if (result.length == undefined) return false
-        if (result.length == 0) return null
+        const result = await db_update(TABLE_USER, {
+            refreshToken: refreshToken
+        }, {
+            userIdx: userIdx
+        })
+        if (result.length == undefined) {
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, FAIL_MSG.READ_USER))
+        }
+        if (result.length == 0) {
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, FAIL_MSG.READ_USER))
+        }
         return result[0]
     },
     selectLikes: async (jsonData) => {
         const result = await db_select(TABLE_LIKED, jsonData)
+        if (result.length == undefined) {
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_LIKE_COMICS))
+        }
         return result
     },
     insertLikes: async (jsonData) => {
         const result = await db_insert(TABLE_LIKED, jsonData)
+        if (!result) {
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_LIKE_COMICS))
+        }
         return result
     },
     deleteLikes: async (jsonData) => {
         const result = await db_delete(TABLE_LIKED, jsonData)
+        if (!result) {
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_UNLIKE_COMICS))
+        }
         return result
     },
     insertComics: async (jsonData) => {
         const result = await db_insert(TABLE_COMICS, jsonData)
+        if (!result) {
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_CREATED_COMICS))
+        }
         return result
     },
     selectComics: async (whereJson) => {
         const result = await db_select(TABLE_COMICS, whereJson)
-        if (result.length == undefined) return false
-        if (result.length == 0) return null
+        if (result.length == undefined) {
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_COMICS))
+        }
+        if (result.length == 0){   
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.NO_COMICS))
+        }
         return convertComics(result[0])
     },
     selectComicsAll: async (whereJson, orderBy) => {
         const result = await db_select(TABLE_COMICS, whereJson, orderBy)
-        if (result.length == undefined) return false
+        if (result.length == undefined){
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_COMICS_ALL))
+        }
         const convertedResult = []
         for (const i in result) {
             const comicsData = result[i]
@@ -85,17 +130,26 @@ const dbManager = {
     },
     insertEpisode: async (jsonData) => {
         const result = await db_insert(TABLE_EPISODE, jsonData)
+        if (!result){
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_CREATED_EPISODE))
+        }
         return result
     },
     selectEpisode: async (whereJson, orderBy) => {
         const result = await db_select(TABLE_EPISODE, whereJson, orderBy)
-        if (result.length == undefined) return false
-        if (result.length == 0) return null
+        if (result.length == undefined){
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_EPISODE_ALL))
+        }
+        if (result.length == 0){
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.NO_EPISODE))
+        }
         return convertEpisode(result[0])
     },
     selectEpisodeAll: async (whereJson, orderBy) => {
         const result = await db_select(TABLE_EPISODE, whereJson, orderBy)
-        if (result.length == undefined) return false
+        if (result.length == undefined){
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_EPISODE_ALL))
+        }
         const convertedResult = []
         for (const i in result) {
             const episodeData = result[i]
@@ -105,18 +159,23 @@ const dbManager = {
     },
     insertComments: async (jsonData) => {
         const result = await db_insert(TABLE_COMMENT, jsonData)
+        if (!result){
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_CREATED_COMICS))
+        }
         return result
     },
     selectCommentsAll: async (whereJson, orderBy) => {
         const result = await db_select(TABLE_COMMENT, whereJson, orderBy)
-        if (result.length == undefined) return false
+        if (result.length == undefined){
+            return new errorMsg(true, Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_READ_COMMENTS_ALL))
+        }
         const convertedResult = []
         for (const comment of result) {
             const imageArray = []
-            if(comment.image1) imageArray.push(comment.image1)
-            if(comment.image2) imageArray.push(comment.image2)
-            if(comment.image3) imageArray.push(comment.image3)
-            if(comment.image4) imageArray.push(comment.image4)
+            if (comment.image1) imageArray.push(comment.image1)
+            if (comment.image2) imageArray.push(comment.image2)
+            if (comment.image3) imageArray.push(comment.image3)
+            if (comment.image4) imageArray.push(comment.image4)
             convertedResult.push({
                 comment_idx: comment.commentIdx,
                 name: comment.name,
