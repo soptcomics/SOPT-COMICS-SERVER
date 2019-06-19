@@ -12,10 +12,14 @@ router.post('/', async (req, res) => {
     const inputToken = req.headers.token
     const inputRefreshToken = req.headers.refresh_token
     if(inputToken == undefined || inputRefreshToken == undefined){
-        res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
+        res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.EMPTY_TOKEN))
         return
     }
-    const payload = jwtUtils.getPayload(inputToken)
+    const payload = await jwtUtils.getPayload(inputToken)
+    if(payload == jwtUtils.TOKEN_INVALID) {
+        res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.INVALID_TOKEN))
+        return
+    }
     const resultJson = await dbManager.selectUser({userIdx: payload.userIdx})
     if(resultJson === undefined){
         res.status(200).send(Utils.successFalse(CODE.DB_ERROR, FAIL_MSG.READ_USER))
@@ -23,6 +27,10 @@ router.post('/', async (req, res) => {
     }
     if (resultJson == false) {
         res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.NO_USER))
+        return
+    }
+    if (!resultJson.refreshToken){
+        res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.EMPTY_REFRESH_TOKEN))
         return
     }
     if (resultJson.refreshToken != inputRefreshToken){

@@ -6,6 +6,9 @@ const secretOrPrivateKey = secretKey.secretOrPrivateKey
 const options = secretKey.jwtOptions
 const refreshOptions = secretKey.jwtRefreshOptions
 
+
+const TOKEN_EXPIRED = -3
+const TOKEN_INVALID = -2
 module.exports = {
     sign: (user) => {
         const payload = {
@@ -27,19 +30,32 @@ module.exports = {
         } catch (err) {
             if (err.message === 'jwt expired') {
                 console.log('expired token');
-                return this.TOKEN_EXPIRED;
+                return TOKEN_EXPIRED;
             } else if (err.message === 'invalid token') {
                 console.log('invalid token');
-                return this.TOKEN_INVALID;
+                return TOKEN_INVALID;
             } else {
                 console.log("invalid token");
-                return this.TOKEN_INVALID;
+                return TOKEN_INVALID;
             }
         }
         return decoded;
     },
     getPayload: (token) => {
-        const decoded = jwt.verify(token, secretOrPrivateKey,{ignoreExpiration: true})
+        let decoded
+        try {
+            decoded = jwt.verify(token, secretOrPrivateKey, {
+                ignoreExpiration: true
+            })
+        } catch (err) {
+            if (err.message === 'invalid token') {
+                console.log('invalid token')
+                return TOKEN_INVALID
+            } else {
+                console.log("invalid token")
+                return TOKEN_INVALID
+            }
+        }
         return decoded
     },
     refresh: (user) => {
@@ -49,6 +65,6 @@ module.exports = {
         }
         return jwt.sign(payload, secretOrPrivateKey, options);
     },
-    TOKEN_EXPIRED : -3,
-    TOKEN_INVALID : -2,
-};
+    TOKEN_EXPIRED: TOKEN_EXPIRED,
+    TOKEN_INVALID: TOKEN_INVALID
+}
