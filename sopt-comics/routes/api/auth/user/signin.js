@@ -6,7 +6,8 @@ const CODE = require('../../../../modules/utils/statusCode')
 const MSG = require('../../../../modules/utils/responseMessage')
 const encryptionManager = require('../../../../modules/utils/encryptionManager')
 const dbManager = require('../../../../modules/utils/dbManager')
-const jwtUtils = require('../../../../modules/utils/jwt');
+const jwtUtils = require('../../../../modules/utils/jwt')
+const sealUtils = require('../../../../modules/utils/errorUtils')
 
 /*
 로그인
@@ -25,12 +26,8 @@ router.post('/', async (req, res) => {
         return
     }
     const resultJson = await dbManager.selectUser({id: inputId})
-    if (resultJson === null) {
-        res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.NO_USER))
-        return
-    }
-    if (resultJson == false) {
-        res.status(200).send(Utils.successFalse(CODE.INTERNAL_SERVER_ERROR, FAIL_MSG.READ_USER))
+    if (resultJson.isError == true) {
+        res.status(200).send(resultJson.jsonData)
         return
     }
     const hashedPwd = await encryptionManager.encryption(inputPwd, resultJson.salt)
@@ -41,8 +38,8 @@ router.post('/', async (req, res) => {
     const tokens = jwtUtils.sign(resultJson)
     const resultData = tokens
     const resultUpdate = dbManager.updateUserRefreshToken(tokens.refresh_token, resultJson.userIdx)
-    if (!resultUpdate) {
-        res.status(200).send(Utils.successFalse(CODE.DB_ERROR, FAIL_MSG.READ_USER))
+    if (resultUpdate.isError == true) {
+        res.status(200).send(resultData.jsonData)
         return
     }
     res.status(200).send(Utils.successTrue(CODE.OK, MSG.READ_USER, resultData))

@@ -27,13 +27,9 @@ router.post('/', async (req, res) => {
         res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
         return
     }
-    const validCheck = await dbManager.selectUser({id: inputId})
-    if (validCheck === false) {
-        res.status(200).send(Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_CREATED_USER))
-        return
-    }
-    if (validCheck != null) {
-        res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.ALREADY_USER))
+    const existUser = await dbManager.existUser({id: inputId})
+    if (existUser.isError == true) {
+        res.status(200).send(existUser.jsonData)
         return
     }
     const salt = await encryptionManager.makeRandomByte()
@@ -45,9 +41,8 @@ router.post('/', async (req, res) => {
         salt: salt
     }
     const result = await dbManager.insertUser(jsonData)
-    if (!result) {
-        console.log(result)
-        res.status(200).send(Utils.successFalse(CODE.DB_ERROR, MSG.FAIL_CREATED_USER))
+    if (result.isError == true) {
+        res.status(200).send(result.jsonData)
         return
     }
     res.status(200).send(Utils.successTrue(CODE.OK, MSG.CREATED_USER))
