@@ -62,7 +62,7 @@ router.post('/', upload.array('image'), authUtils.isLoggedin, async (req, res) =
     const inputUserIdx = req.decoded.userIdx || null
     let inputName = req.body.name
     const inputContent = req.body.content
-    const inputEpisodeIdx = req.body.episode_idx 
+    const inputEpisodeIdx = req.params.episodeIdx
     if (inputThumbnail == undefined) {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
         return
@@ -79,6 +79,11 @@ router.post('/', upload.array('image'), authUtils.isLoggedin, async (req, res) =
         inputContent == undefined ||
         inputEpisodeIdx == undefined) {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, OUT_OF_VALUE))
+        return
+    }
+    const existEpisode = await dbManager.selectEpisode({episodeIdx : inputEpisodeIdx})
+    if(existEpisode.isError == true) {
+        res.status(200).send(existEpisode.jsonData)
         return
     }
     const jsonData = {
