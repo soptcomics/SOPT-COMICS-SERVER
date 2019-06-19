@@ -6,6 +6,7 @@ const CODE = require('../../../../modules/utils/statusCode')
 const MSG = require('../../../../modules/utils/responseMessage')
 const dbManager = require('../../../../modules/utils/dbManager')
 const upload = require('../../../../config/multer')
+const authUtils = require('../../../../modules/utils/authUtils')
 
 /*
 댓글 전체 읽기
@@ -41,7 +42,7 @@ BODY        : {
     "user_idx": 3 //nullable 
 }
 */
-router.post('/', upload.array('image'), async (req, res) => {
+router.post('/', upload.array('image'), authUtils.isLoggedin, async (req, res) => {
     
     if (req.files.length > 4) {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, OUT_OF_IMAGE_LIMIT_4))
@@ -58,7 +59,7 @@ router.post('/', upload.array('image'), async (req, res) => {
     const inputImage2 = inputImage[1]
     const inputImage3 = inputImage[2]
     const inputImage4 = inputImage[3]
-    const inputUserIdx = req.body.user_idx || null
+    const inputUserIdx = req.decoded.userIdx || null
     let inputName = req.body.name
     const inputContent = req.body.content
     const inputEpisodeIdx = req.body.episode_idx 
