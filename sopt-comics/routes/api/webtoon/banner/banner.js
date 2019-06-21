@@ -4,8 +4,6 @@ const router = express.Router()
 const UTILS = require('../../../../modules/utils/utils')
 const CODE = require('../../../../modules/utils/statusCode')
 const MSG = require('../../../../modules/utils/responseMessage')
-const dbManager = require('../../../../modules/utils/dbManager')
-const upload = require('../../../../config/multer')
 
 /*
 메인화면 배너 목록

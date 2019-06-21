@@ -4,9 +4,9 @@ const router = express.Router()
 const Utils = require('../../../../modules/utils/utils')
 const CODE = require('../../../../modules/utils/statusCode')
 const MSG = require('../../../../modules/utils/responseMessage')
-const dbManager = require('../../../../modules/utils/dbManager')
 const jwtUtils = require('../../../../modules/utils/jwt')
 const authUtils = require('../../../../modules/utils/authUtils')
+const User = require('../../../../models/User')
 
 router.post('/', async (req, res) => {
     const inputToken = req.headers.token
@@ -21,7 +21,7 @@ router.post('/', async (req, res) => {
         res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.INVALID_TOKEN))
         return
     }
-    const resultJson = await dbManager.selectUser({userIdx: payload.userIdx})
+    const resultJson = await User.selectUser({userIdx: payload.userIdx})
     if(resultJson.isError == true){
         res.status(200).send(resultJson.jsonData)
         return

@@ -5,8 +5,10 @@ const authUtil = require('../../../../modules/utils/authUtils')
 const UTILS = require('../../../../modules/utils/utils')
 const CODE = require('../../../../modules/utils/statusCode')
 const MSG = require('../../../../modules/utils/responseMessage')
-const dbManager = require('../../../../modules/utils/dbManager')
 const upload = require('../../../../config/multer')
+const Comics = require('../../../../models/Comics')
+const Like = require('../../../../models/Like')
+const Episode = require('../../../../models/Episode')
 
 const FLAG_LIKE = 0
 const FLAG_RECENT = 1
@@ -34,11 +36,10 @@ router.get('/sort/:flag', async (req, res) => {
             orderBy = {writetime: 'DESC'}
             break
         default:
-            //파라미터(flag) 체크 => 실패시 CODE: 400, MSG : OUT_OF_VALUE
             res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
             return
     }
-    const result = await dbManager.selectComicsAll(whereJson, orderBy)
+    const result = await Comics.selectComicsAll(whereJson, orderBy)
     if(result.isError == true){
         res.status(200).send(result.jsonData)
         return
@@ -61,12 +62,12 @@ router.get('/:comicsIdx', authUtil.checkToken, async (req, res) => {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
         return
     }
-    const existComics = await dbManager.selectComics({comicsIdx: inputComicsIdx})
+    const existComics = await Comics.selectComics({comicsIdx: inputComicsIdx})
     if(existComics.isError == true){
         res.status(200).send(existComics.jsonData)
         return
     }
-    const resultEpisodeArray = await dbManager.selectEpisodeAll({
+    const resultEpisodeArray = await Episode.selectEpisodeAll({
         comicsIdx: inputComicsIdx
     }, {
         episodeIdx: "DESC"
@@ -87,7 +88,7 @@ router.get('/:comicsIdx', authUtil.checkToken, async (req, res) => {
         comicsIdx: inputComicsIdx,
         userIdx: inputUserIdx
     }
-    const existLike = await dbManager.selectLikes(jsonData)
+    const existLike = await Like.selectLikes(jsonData)
     if(existLike.isError == true){
         res.status(200).send(existLike.jsonData)
         return
@@ -125,12 +126,8 @@ router.post('/', upload.single('thumbnail'), (req, res) => {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
         return
     }
-    const jsonData = {
-        title: inputTitle,
-        writer: inputWriter,
-        thumbnail: inputThumbnail
-    }
-    const result = dbManager.insertComics(jsonData)
+    const comics = new Comics(inputTitle, inputWriter, inputThumbnail)
+    const result = comics.insertComics()
     if (result == false) {
         res.status(200).send(UTILS.successFalse(CODE.DB_ERROR, MSG.FAIL_CREATED_COMICS))
         return

@@ -4,8 +4,8 @@ const router = express.Router()
 const UTILS = require('../../../../modules/utils/utils')
 const CODE = require('../../../../modules/utils/statusCode')
 const MSG = require('../../../../modules/utils/responseMessage')
-const dbManager = require('../../../../modules/utils/dbManager')
 const upload = require('../../../../config/multer')
+const Episode = require('../../../../models/Episode')
 
 /*
 NOTHING
@@ -27,7 +27,7 @@ router.get('/:episodeIdx', async (req, res) => {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
         return
     }
-    const result = await dbManager.selectEpisode({episodeIdx: inputEpisodeIdx})
+    const result = await Episode.selectEpisode({episodeIdx: inputEpisodeIdx})
     if(result.isError == true) {
         res.status(200).send(result.jsonData)
         return
@@ -67,13 +67,8 @@ router.post('/', upload.array('images'), async (req, res) => {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
         return
     }
-    const jsonData = {
-        title: inputTitle,
-        comicsIdx: inputComicsIdx,
-        thumbnail: inputThumbnail,
-        imageUrl: inputImageUrl
-    }
-    const result = await dbManager.insertEpisode(jsonData)
+    const episode = new Episode(inputTitle, inputComicsIdx, inputThumbnail, inputImageUrl)
+    const result = await episode.insertEpisode()
     if(result.isError == true) {
         res.status(200).send(result.jsonData)
         return

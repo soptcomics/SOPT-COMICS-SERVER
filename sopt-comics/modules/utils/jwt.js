@@ -1,7 +1,6 @@
 var randToken = require('rand-token')
 const jwt = require('jsonwebtoken')
 const secretKey = require('../../config/secret.key')
-const dbManager = require('../../modules/utils/dbManager')
 const secretOrPrivateKey = secretKey.secretOrPrivateKey
 const options = secretKey.jwtOptions
 const refreshOptions = secretKey.jwtRefreshOptions

@@ -16,9 +16,12 @@ const authUtil = {
         }
         const user = jwt.verify(token)
         if (user == this.TOKEN_EXPIRED) {
-            return res.json(util.successFalse(statusCode.UNAUTHORIZED, resMessage.EXPRIED_TOKEN))
+            return res.json(util.successFalse(statusCode.UNAUTHORIZED, resMessage.EXPIRED_TOKEN))
         }
         if (user == this.TOKEN_INVALID) {
+            return res.json(util.successFalse(statusCode.UNAUTHORIZED, resMessage.INVALID_TOKEN))
+        }
+        if (user.userIdx == undefined) {
             return res.json(util.successFalse(statusCode.UNAUTHORIZED, resMessage.INVALID_TOKEN))
         }
         req.decoded = user
