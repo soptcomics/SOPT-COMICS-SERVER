@@ -5,7 +5,7 @@ const Utils = require('../../../../modules/utils/utils')
 const CODE = require('../../../../modules/utils/statusCode')
 const MSG = require('../../../../modules/utils/responseMessage')
 const encryptionManager = require('../../../../modules/utils/encryptionManager')
-const dbManager = require('../../../../modules/utils/dbManager')
+const User = require('../../../../models/User')
 
 /*
 회원가입
@@ -27,20 +27,19 @@ router.post('/', async (req, res) => {
         res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
         return
     }
-    const existUser = await dbManager.existUser({id: inputId})
+    const existUser = await User.existUser({id: inputId})
     if (existUser.isError == true) {
         res.status(200).send(existUser.jsonData)
         return
     }
+    if (existUser == true){
+        res.status(200).send(Utils.successFalse(CODE.BAD_REQUEST, MSG.ALREADY_USER))
+        return
+    }
     const salt = await encryptionManager.makeRandomByte()
     const hashedPwd = await encryptionManager.encryption(inputPwd, salt)
-    const jsonData = {
-        id: inputId,
-        name: inputName,
-        password: hashedPwd,
-        salt: salt
-    }
-    const result = await dbManager.insertUser(jsonData)
+    const user = new User(inputId, inputName, hashedPwd, salt)
+    const result = await user.insertUser()
     if (result.isError == true) {
         res.status(200).send(result.jsonData)
         return

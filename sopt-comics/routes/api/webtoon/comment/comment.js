@@ -4,9 +4,11 @@ const router = express.Router({mergeParams: true})
 const UTILS = require('../../../../modules/utils/utils')
 const CODE = require('../../../../modules/utils/statusCode')
 const MSG = require('../../../../modules/utils/responseMessage')
-const dbManager = require('../../../../modules/utils/dbManager')
 const upload = require('../../../../config/multer')
 const authUtils = require('../../../../modules/utils/authUtils')
+const Comment = require('../../../../models/Comment')
+const User = require('../../../../models/User')
+const Episode = require('../../../../models/Episode')
 
 /*
 댓글 전체 읽기
@@ -20,7 +22,16 @@ router.get('/', async (req, res) => {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.FAIL_READ_COMMENTS_ALL))
         return
     }
-    const result = await dbManager.selectCommentsAll({episodeIdx: inputEpisodeIdx})
+    const existEpisode = await Episode.selectEpisode({episodeIdx: inputEpisodeIdx})
+    if(existEpisode.isError == true) {
+        res.status(200).send(existEpisode.jsonData)
+        return
+    }
+    if(existEpisode.length == 0) {
+        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.NO_EPISODE))
+        return
+    }
+    const result = await Comment.selectCommentsAll({episodeIdx: inputEpisodeIdx})
     if (result === undefined){        
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.FAIL_READ_COMMENTS_ALL))
         return
@@ -43,17 +54,14 @@ BODY        : {
 }
 */
 router.post('/', upload.array('image'), authUtils.isLoggedin, async (req, res) => {
-    
     if (req.files.length > 4) {
         res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, OUT_OF_IMAGE_LIMIT_4))
         return
     }
-    
     const inputImage = [null, null, null, null]
     for(let i = 0; i < req.files.length; i++){
         inputImage[i] = req.files[i].location
     }
-
     const inputThumbnail = inputImage[0]
     const inputImage1 = inputThumbnail
     const inputImage2 = inputImage[1]
@@ -68,7 +76,7 @@ router.post('/', upload.array('image'), authUtils.isLoggedin, async (req, res) =
         return
     }
     if(!inputName && inputUserIdx) {
-        const resultUser = await dbManager.selectUser({userIdx: inputUserIdx})
+        const resultUser = await User.selectUser({userIdx: inputUserIdx})
         if(resultUser.isError == true){
             res.status(200).send(result.jsonData)
             return
@@ -78,25 +86,20 @@ router.post('/', upload.array('image'), authUtils.isLoggedin, async (req, res) =
     if (inputName == undefined ||
         inputContent == undefined ||
         inputEpisodeIdx == undefined) {
-        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, OUT_OF_VALUE))
+        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
         return
     }
-    const existEpisode = await dbManager.selectEpisode({episodeIdx : inputEpisodeIdx})
+    const existEpisode = await Episode.selectEpisode({episodeIdx : inputEpisodeIdx})
     if(existEpisode.isError == true) {
         res.status(200).send(existEpisode.jsonData)
         return
     }
-    const jsonData = {
-        name: inputName,
-        content: inputContent,
-        image1: inputImage1,
-        image2: inputImage2,
-        image3: inputImage3,
-        image4: inputImage4,
-        episodeIdx: inputEpisodeIdx,
-        userIdx: inputUserIdx
+    if(existEpisode.length == 0) {
+        res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.NO_EPISODE))
+        return
     }
-    const result = await dbManager.insertComments(jsonData)
+    const comment = new Comment(inputName, inputContent, inputImage1, inputImage2, inputImage3, inputImage4, inputEpisodeIdx, inputUserIdx)
+    const result = await comment.insertComments()
     if(result.isError == true){
         res.status(200).send(result.jsonData)
         return

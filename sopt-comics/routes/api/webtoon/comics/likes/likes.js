@@ -5,7 +5,9 @@ const authUtil = require('../../../../../modules/utils/authUtils')
 const UTILS = require('../../../../../modules/utils/utils')
 const CODE = require('../../../../../modules/utils/statusCode')
 const MSG = require('../../../../../modules/utils/responseMessage')
-const dbManager = require('../../../../../modules/utils/dbManager')
+const Like = require('../../../../../models/Like')
+const User = require('../../../../../models/User')
+const Comics = require('../../../../../models/Comics')
 
 /*
 좋아요
@@ -24,21 +26,21 @@ router.post('/', authUtil.isLoggedin, async (req, res) => {
             res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
             return
     }
-    const existUser = await dbManager.selectUser({userIdx: inputUserIdx})
-    if (existUser.isError == true) {
-        res.status(200).send(existUser.jsonData)
+    const resultUser = await User.selectUser({userIdx: inputUserIdx})
+    if (resultUser.isError == true) {
+        res.status(200).send(resultUser.jsonData)
         return
     }
-    const existComics = await dbManager.selectComics({comicsIdx: inputComicsIdx})
-    if (existComics.isError == true) {
-        res.status(200).send(existComics.jsonData)
+    const resultComics = await Comics.selectComics({comicsIdx: inputComicsIdx})
+    if (resultComics.isError == true) {
+        res.status(200).send(resultComics.jsonData)
         return
     }
     const jsonData = {
         comicsIdx: inputComicsIdx,
         userIdx: inputUserIdx
     }
-    const existLike = await dbManager.selectLikes(jsonData)
+    const existLike = await Like.selectLikes(jsonData)
     if(existLike.isError == true){
         res.status(200).send(existLike.jsonData)
         return
@@ -47,7 +49,8 @@ router.post('/', authUtil.isLoggedin, async (req, res) => {
         res.status(200).send(UTILS.successTrue(CODE.OK, MSG.ALREADY_LIKE_COMICS))
         return
     }
-    const result = await dbManager.insertLikes(jsonData)
+    const like = new Like(inputComicsIdx, inputUserIdx)
+    const result = await like.insertLikes(jsonData)
     if(result.isError == true){
         res.status(200).send(result.jsonData)
         return
@@ -67,17 +70,16 @@ BODY        : {
 router.delete('/', authUtil.isLoggedin, async (req, res) => {
     const inputComicsIdx = req.body.comics_idx
     const inputUserIdx = req.decoded.userIdx
-    if (inputComicsIdx == undefined |
-        inputUserIdx == undefined) {
+    if (inputComicsIdx == undefined) {
             res.status(200).send(UTILS.successFalse(CODE.BAD_REQUEST, MSG.OUT_OF_VALUE))
             return
     }
-    const existUser = await dbManager.selectUser({userIdx: inputUserIdx})
+    const existUser = await User.selectUser({userIdx: inputUserIdx})
     if (existUser.isError == true) {
         res.status(200).send(existUser.JsonData)
         return
     }
-    const existComics = await dbManager.selectComics({comicsIdx: inputComicsIdx})
+    const existComics = await Comics.selectComics({comicsIdx: inputComicsIdx})
     if (existComics.isError == true) {
         res.status(200).send(existComics.jsonData)
         return
@@ -86,7 +88,7 @@ router.delete('/', authUtil.isLoggedin, async (req, res) => {
         comicsIdx: inputComicsIdx,
         userIdx: inputUserIdx
     }
-    const existLike = await dbManager.selectLikes(jsonData)
+    const existLike = await Like.selectLikes(jsonData)
     if(existLike.isError == true){
         res.status(200).send(existLike.jsonData)
         return
@@ -95,7 +97,7 @@ router.delete('/', authUtil.isLoggedin, async (req, res) => {
         res.status(200).send(UTILS.successTrue(CODE.OK, MSG.ALREADY_UNLIKE_COMICS))
         return
     }
-    const result = await dbManager.deleteLikes(jsonData)
+    const result = await Like.deleteLikes(jsonData)
     if(result.isError == true){
         res.status(200).send(result.jsonData)
         return
